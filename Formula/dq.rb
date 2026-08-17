@@ -1,8 +1,8 @@
 class Dq < Formula
   desc "a small CLI for data pipelines powered by DuckDB"
   homepage "https://github.com/ryanmiville/dq"
-  url "https://github.com/ryanmiville/dq/archive/refs/tags/v0.5.0.tar.gz"
-  sha256 "cea66ddd32b6ab37b393448054e9eb8924eeccc5751e963a93402779aa269e4a"
+  url "https://github.com/ryanmiville/dq/archive/refs/tags/v0.6.0.tar.gz"
+  sha256 "9ba30d3fd1f3b8f16e45ddd27cc32e51e3c72228478c143fd6fb32f2fe677569"
   license "MIT"
 
   depends_on "rust" => :build
