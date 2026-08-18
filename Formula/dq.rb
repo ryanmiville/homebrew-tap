@@ -7,9 +7,10 @@ class Dq < Formula
 
   bottle do
     root_url "https://github.com/ryanmiville/homebrew-tap/releases/download/dq-0.6.0"
-    rebuild 1
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "5a36f76622075a9eb4ce8060058c57cd95e8ee0c55dbcad6213db844f8b22b88"
-    sha256 cellar: :any,                 x86_64_linux:  "533a45e26682727b2fb0d1a2edf2d73e77a452bd1148560f693e63b46bd960c0"
+    rebuild 2
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "322ce610e212f7e495d4319083534f94bfd44c0224fe30b3fe2ffecbe373884f"
+    sha256 cellar: :any_skip_relocation, sequoia:       "ceff5c1d0026b2d9f481894f1aaf650388bb1c4ddf519227ec8a90d8ad4ef738"
+    sha256 cellar: :any,                 x86_64_linux:  "558e36db0df6f44c36680239d0ce9ea4c183e46c40e27fc454afac3a9720193b"
   end
 
   depends_on "rust" => :build
