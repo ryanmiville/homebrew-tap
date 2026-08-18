@@ -5,7 +5,6 @@ class Dq < Formula
   sha256 "5f3adbc9c71230d3e1503bfc8b96027775c6d5b304842ed5423a7f58330d1298"
   license "MIT"
 
-
   depends_on "rust" => :build
 
   def install
