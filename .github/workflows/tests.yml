@@ -67,7 +67,10 @@ jobs:
       - name: Build Intel bottle
         if: github.event_name == 'pull_request' && matrix.os == 'macos-15-intel'
         run: |
-          brew install --build-bottle --ignore-dependencies ryanmiville/tap/dq
+          if ! brew install --build-bottle --ignore-dependencies ryanmiville/tap/dq; then
+            cat "$HOME/Library/Logs/Homebrew/dq/01.cargo.log"
+            exit 1
+          fi
           brew test ryanmiville/tap/dq
           brew bottle --json ryanmiville/tap/dq
 
