@@ -67,6 +67,12 @@ jobs:
       - name: Build Intel bottle
         if: github.event_name == 'pull_request' && matrix.os == 'macos-15-intel'
         run: |
+          # Homebrew's build environment removes the runner toolchain from PATH.
+          # Expose rustup's proxies through the first directory in that PATH.
+          shim_dir="$(brew --repository)/Library/Homebrew/shims/mac/super/bin"
+          ln -s "$(command -v cargo)" "$shim_dir/cargo"
+          ln -s "$(command -v rustc)" "$shim_dir/rustc"
+
           if ! brew install --build-bottle --ignore-dependencies ryanmiville/tap/dq; then
             cat "$HOME/Library/Logs/Homebrew/dq/01.cargo.log"
             exit 1
