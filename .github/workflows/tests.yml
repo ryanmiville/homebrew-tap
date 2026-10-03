@@ -78,7 +78,8 @@ jobs:
             exit 1
           fi
           brew test ryanmiville/tap/dq
-          brew bottle --json ryanmiville/tap/dq
+          version="$(brew list --versions ryanmiville/tap/dq | awk '{print $2}')"
+          brew bottle --json --root-url="https://github.com/$GITHUB_REPOSITORY/releases/download/dq-$version" ryanmiville/tap/dq
 
       - name: Upload bottles as artifact
         if: always() && github.event_name == 'pull_request'

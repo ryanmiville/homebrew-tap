@@ -37,13 +37,40 @@ jobs:
         uses: Homebrew/actions/git-user-config@b35a29a0f83ee8b8ca07b219fc8db3d7bb88ab49 # 2026.08.10.2
 
       - name: Pull bottles
+        id: pull
         env:
           HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HOMEBREW_GIT_COMMITTER_NAME: ${{ steps.git_setup.outputs.name }}
           HOMEBREW_GIT_COMMITTER_EMAIL: ${{ steps.git_setup.outputs.email }}
           HEAD_SHA: ${{ inputs.head_sha }}
           PULL_REQUEST: ${{ inputs.pull_request }}
-        run: brew pr-pull --debug --tap="$GITHUB_REPOSITORY" --head-sha="$HEAD_SHA" "$PULL_REQUEST"
+        run: brew pr-pull --debug --no-upload --retain-bottle-dir --tap="$GITHUB_REPOSITORY" --head-sha="$HEAD_SHA" "$PULL_REQUEST"
+
+      - name: Publish bottles
+        working-directory: ${{ steps.pull.outputs.bottle_path }}
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HOMEBREW_GIT_COMMITTER_NAME: ${{ steps.git_setup.outputs.name }}
+          HOMEBREW_GIT_COMMITTER_EMAIL: ${{ steps.git_setup.outputs.email }}
+        run: |
+          python3 <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          for path in Path(".").glob("*.bottle.json"):
+              metadata = json.loads(path.read_text())
+              for entry in metadata.values():
+                  bottle = entry["bottle"]
+                  if bottle["root_url"] == "https://ghcr.io/v2/homebrew/core":
+                      formula = entry["formula"]
+                      bottle["root_url"] = (
+                          f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/"
+                          f"{formula['name']}-{formula['pkg_version']}"
+                      )
+              path.write_text(json.dumps(metadata, indent=2) + "\n")
+          PY
+          brew pr-upload --debug
 
       - name: Push commits
         uses: Homebrew/actions/git-try-push@b35a29a0f83ee8b8ca07b219fc8db3d7bb88ab49 # 2026.08.10.2
