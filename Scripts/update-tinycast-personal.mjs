@@ -11,24 +11,25 @@ const headers = {
   "User-Agent": "tinycast-personal-tap"
 };
 if (process.env.GH_TOKEN) headers.Authorization = "Bearer " + process.env.GH_TOKEN;
-const releaseResponse = await fetch("https://api.github.com/repos/" + repository + "/releases/latest", { headers });
+const releaseResponse = await fetch("https://api.github.com/repos/" + repository + "/releases", { headers });
 if (!releaseResponse.ok) throw new Error("Release API returned " + releaseResponse.status);
-const release = await releaseResponse.json();
-if (release.draft || release.prerelease || !/^personal-v[0-9]+[.][0-9]+[.][0-9]+-[0-9]+$/.test(release.tag_name)) {
-  throw new Error("Latest release is not a published personal build");
-}
+const releases = await releaseResponse.json();
+const release = releases.find((entry) => !entry.draft && entry.prerelease &&
+  /^personal-v[0-9]+[.][0-9]+[.][0-9]+-beta[.][0-9]+-[0-9]+$/.test(entry.tag_name));
+if (!release) throw new Error("No published personal beta build found");
 const baseURL = "https://github.com/" + repository + "/releases/download/" + release.tag_name + "/";
 const manifestResponse = await fetch(baseURL + "fork-release.json");
 if (!manifestResponse.ok) throw new Error("Manifest download returned " + manifestResponse.status);
 const metadata = await manifestResponse.json();
-if (!/^[0-9]+[.][0-9]+[.][0-9]+,[0-9]+$/.test(metadata.version) ||
+if (!/^[0-9]+[.][0-9]+[.][0-9]+-beta[.][0-9]+,[0-9]+$/.test(metadata.version) ||
     !/^[a-f0-9]{64}$/.test(metadata.sha256) ||
     !/^[a-f0-9]{40}$/.test(metadata.source) ||
     !/^[a-f0-9]{40}$/.test(metadata.upstream)) {
   throw new Error("Invalid release manifest");
 }
 const [version, build] = metadata.version.split(",");
-if (metadata.tag !== release.tag_name || metadata.tag !== "personal-v" + version + "-" + build ||
+if (metadata.channel !== "beta" || metadata.upstreamTag !== "v" + version ||
+    metadata.tag !== release.tag_name || metadata.tag !== "personal-v" + version + "-" + build ||
     metadata.source !== release.target_commitish) {
   throw new Error("Release and manifest do not identify the same build");
 }
@@ -40,7 +41,7 @@ const cask = [
   "",
   '  url "https://github.com/ryanmiville/tinycast/releases/download/personal-v#{version.csv.first}-#{version.csv.second}/Tinycast-Personal.zip"',
   '  name "Tinycast Personal"',
-  '  desc "Menu-bar launcher with Left Control as Hyper"',
+  '  desc "Personal beta builds of the Tinycast launcher"',
   '  homepage "https://github.com/ryanmiville/tinycast"',
   "",
   '  livecheck do',
@@ -63,6 +64,7 @@ const cask = [
   '  uninstall quit: "com.tinycast.app"',
   "",
   '  caveats <<~EOS',
+  '    Tracks upstream beta releases; updates are managed by Homebrew.',
   '    Choose Left Control under Tinycast Settings > General > Hyper Key.',
   '    Keep Caps Lock set to Control in macOS Keyboard > Modifier Keys.',
   '    On first switching from upstream, grant Accessibility to this fork.',

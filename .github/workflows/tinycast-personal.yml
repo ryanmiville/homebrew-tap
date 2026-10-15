@@ -26,6 +26,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          node --check Scripts/update-tinycast-personal.mjs
           node Scripts/update-tinycast-personal.mjs
           ruby -c Casks/tinycast-personal.rb
           git diff --check
