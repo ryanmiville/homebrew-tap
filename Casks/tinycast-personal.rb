@@ -1,10 +1,10 @@
 cask "tinycast-personal" do
-  version "0.11.12,11"
-  sha256 "e883500b59012d26be2a18dec35d8da7fc6047d5a1535e875c350f7580ddfa97"
+  version "0.11.21-beta.120,26"
+  sha256 "33becebe6a96c4d001f08ce4156e12b8fb8061caa3a812ab657059f43c4a4a13"
 
   url "https://github.com/ryanmiville/tinycast/releases/download/personal-v#{version.csv.first}-#{version.csv.second}/Tinycast-Personal.zip"
   name "Tinycast Personal"
-  desc "Menu-bar launcher with Left Control as Hyper"
+  desc "Personal beta builds of the Tinycast launcher"
   homepage "https://github.com/ryanmiville/tinycast"
 
   livecheck do
@@ -27,6 +27,7 @@ cask "tinycast-personal" do
   uninstall quit: "com.tinycast.app"
 
   caveats <<~EOS
+    Tracks upstream beta releases; updates are managed by Homebrew.
     Choose Left Control under Tinycast Settings > General > Hyper Key.
     Keep Caps Lock set to Control in macOS Keyboard > Modifier Keys.
     On first switching from upstream, grant Accessibility to this fork.
