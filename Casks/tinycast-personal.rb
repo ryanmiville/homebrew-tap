@@ -1,6 +1,6 @@
 cask "tinycast-personal" do
-  version "0.11.21-beta.120,26"
-  sha256 "33becebe6a96c4d001f08ce4156e12b8fb8061caa3a812ab657059f43c4a4a13"
+  version "0.11.22-beta.121,28"
+  sha256 "78b9b0e7bb1ab0ae826eb9ca93a94edc7730338e8cc747245ada45cd868fee35"
 
   url "https://github.com/ryanmiville/tinycast/releases/download/personal-v#{version.csv.first}-#{version.csv.second}/Tinycast-Personal.zip"
   name "Tinycast Personal"
