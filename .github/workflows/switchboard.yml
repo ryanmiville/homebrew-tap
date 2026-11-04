@@ -1,0 +1,43 @@
+name: Update Switchboard
+
+# Daily, and whenever Switchboard's Release workflow starts it after publishing a release.
+on:
+  schedule:
+    - cron: "23 11 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: switchboard-cask
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == 'ryanmiville/homebrew-tap'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: Verify release and update cask
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node --check Scripts/update-switchboard.mjs
+          node Scripts/update-switchboard.mjs
+          if [ -f Casks/switchboard.rb ]; then ruby -c Casks/switchboard.rb; fi
+          git diff --check
+      - name: Publish cask
+        run: |
+          if git diff --quiet && test -z "$(git ls-files --others --exclude-standard Casks)"; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Casks/switchboard.rb
+          git commit -m "Update Switchboard"
+          git push
